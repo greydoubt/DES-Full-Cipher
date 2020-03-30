@@ -158,8 +158,9 @@ print("PART THREE:")
 
 somestring = test_init
 
+# make sure to keep this:
 def split(somestring):
-	return somestring[:int(len(test_init)/2)],somestring[int(len(test_init)/2):]
+	return somestring[:int(len(somestring)/2)],somestring[int(len(somestring)/2):]
 
 LHS, RHS = split(somestring)
 print (LHS, RHS)
@@ -396,16 +397,66 @@ print("Section 2: GENERATE KEYS")
 
 dummykey='000100101010101010010100010101010010101001010010'
 
-print(len(dummykey))
+dummykey64='1000100101010101011110010100010101010010101001010010101000000101'
+print(len(dummykey64))
 
 ROTATIONS = [1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1]
 
+#the input key to the system is a 64bit key. The input key initially goes through a permutation/reduction table
+#(Permutation Choice 1 - PC1) that will shuffle and reduce the input key to 56bit key.
+#The 56bit key then goes through a combination of circular shitfs and permutations to generate the 48bit subkeys to each round.
 
+PC1=[57,49,41,33,25,17,9,1,58,50,42,34,26,18,10,2,59,51,43,35,27,19,11,3,60,52,44,36,63,55,47,39,31,23,15,7,62,54,46,38,30,22,14,6,61,53,45,37,29,21,13,5,28,20,12,4]
+
+PC2=[14,17,11,24,1,5,3,28,15,6,21,10,23,19,12,4,26,8,16,7,27,20,13,2,41,52,31,37,47,55,30,40,51,45,33,48,44,49,39,56,34,53,46,42,50,36,29,32]
+
+
+
+# input key > PC1 (64 to 56) > split > ROTATE > PC2 (56 to 48)
+
+
+# these go into the dec/enc functions before keys are made
+dummykeyPC1 = Permutation(dummykey64, PC1)
+LHSKeyOrig, RHSKeyOrig = split(dummykeyPC1)
+
+
+print(dummykeyPC1)
+print(dummykey64)
+print(LHSKeyOrig)
+print(RHSKeyOrig)
+
+
+# prototype function:
+# get full key (64b), do PC1 and split, then iterate 16 rounds to make a list of 16 keys
+
+# this implies the key has PC1 and split before being sent in at round 1
 def des_keygen(C_inp, D_inp, roundindex):
     # Implement Figure 6
-    
-    key48 = ''
-    C_out = ''
-    D_out = ''
+
+    # left shift: ROTATIONS[roundindex]
+    i = 0
+    while i < ROTATIONS[roundindex]:
+      print("bake me a potato, it's time to rotate-o!")
+      C_inp.append(C_inp[0])
+      D_inp.append(D_inp[0])
+      del C_inp[0]
+      del D_inp[0]
+      i += 1
+
+    # PC2 to key
+    PermPC2 = Permutation(C_inp + D_inp, PC2)
+
+
+    key48 = PermPC2 
+    C_out = C_inp # this SHOULD have rotated
+    D_out = D_inp
 
     return key48, C_out, D_out
+
+i = 0
+while i < 16:
+  print("Key: " + str(i))
+  i += 1
+
+
+# done for the day, test keygen and try cipher
