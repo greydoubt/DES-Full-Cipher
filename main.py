@@ -227,11 +227,12 @@ print(test_middleperm)
 
 
 # this is in F Function as well:
-boxstr = expanded
-eightboxes = list(map(''.join, zip(*[iter(boxstr)]*6)))
+#boxstr = expanded
+# slick way to do it:
+eightboxes = list(map(''.join, zip(*[iter(expanded)]*6)))
 print(eightboxes)
 
-
+# sloppy way to do it:
 #blocks = [prebox[:6], prebox[6:12], prebox[12:18], prebox[18:24], prebox[24:30], prebox[30:36], prebox[36:42], prebox[42:]]
 
 SBOX = [
@@ -243,24 +244,19 @@ SBOX = [
 [15,12,8,2,4,9,1,7,5,11,3,14,10,0,6,13]
 ],
 # Box-2
-
 [
 [15,1,8,14,6,11,3,4,9,7,2,13,12,0,5,10],
 [3,13,4,7,15,2,8,14,12,0,1,10,6,9,11,5],
 [0,14,7,11,10,4,13,1,5,8,12,6,9,3,2,15],
 [13,8,10,1,3,15,4,2,11,6,7,12,0,5,14,9]
 ],
-
 # Box-3
-
 [
 [10,0,9,14,6,3,15,5,1,13,12,7,11,4,2,8],
 [13,7,0,9,3,4,6,10,2,8,5,14,12,11,15,1],
 [13,6,4,9,8,15,3,0,11,1,2,12,5,10,14,7],
 [1,10,13,0,6,9,8,7,4,15,14,3,11,5,2,12]
-
 ],
-
 # Box-4
 [
 [7,13,14,3,0,6,9,10,1,2,8,5,11,12,4,15],
@@ -268,7 +264,6 @@ SBOX = [
 [10,6,9,0,12,11,7,13,15,1,3,14,5,2,8,4],
 [3,15,0,6,10,1,13,8,9,4,5,11,12,7,2,14]
 ],
-
 # Box-5
 [
 [2,12,4,1,7,10,11,6,8,5,3,15,13,0,14,9],
@@ -277,13 +272,11 @@ SBOX = [
 [11,8,12,7,1,14,2,13,6,15,0,9,10,4,5,3]
 ],
 # Box-6
-
 [
 [12,1,10,15,9,2,6,8,0,13,3,4,14,7,5,11],
 [10,15,4,2,7,12,9,5,6,1,13,14,0,11,3,8],
 [9,14,15,5,2,8,12,3,7,0,4,10,1,13,11,6],
 [4,3,2,12,9,5,15,10,11,14,1,7,6,0,8,13]
-
 ],
 # Box-7
 [
@@ -293,15 +286,14 @@ SBOX = [
 [6,11,13,8,1,4,10,7,9,5,0,15,14,2,3,12]
 ],
 # Box-8
-
 [
 [13,2,8,4,6,15,11,1,10,9,3,14,5,0,12,7],
 [1,15,13,8,10,3,7,4,12,5,6,11,0,14,9,2],
 [7,11,4,1,9,12,14,2,0,6,10,13,15,3,5,8],
 [2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11]
 ]
-
 ]
+# end of s-boxes
 
 DECtoBIN4 = {0: '0000',
             1: '0001',
@@ -326,9 +318,10 @@ DECtoBIN2 = {0: '00',
             3: '11'}            
 
 
-print(eightboxes[3])
-print(eightboxes[3][0]+eightboxes[3][-1])
-print(eightboxes[3][1:5])
+# explore the S-boxes:
+#print(eightboxes[3])
+#print(eightboxes[3][0]+eightboxes[3][-1])
+#print(eightboxes[3][1:5])
 
 # this will be called in a for loop from 0-7
 def sbox_lookup(input6bitstr, sboxindex):
@@ -459,12 +452,40 @@ while i < 16:
   print("Key: " + str(i) + ' ', end='')
   keytemp, LHSKeyOrig, RHSKeyOrig = des_keygen(LHSKeyOrig, RHSKeyOrig, i)
   keylist.append(keytemp)
-
   i += 1
+# post condition: list of 16 48bit keys
+
 
 print('\n')
-print(keylist)
+print(len(keylist[0]))
 
 #print(des_keygen(LHSKeyOrig, RHSKeyOrig, 0))
 
-# done for the day, test keygen and try cipher
+
+
+# getting into the sad waters bracing for the <FileNotFoundError>
+# CIPHER
+print("Section 3: Cipher//LOCK IT UP")
+
+def des_round(LE_inp32, RE_inp32, key48):
+    # LEinp and REinp are the outputs of the previous round
+    # k is the key for this round which usually has a different 
+    # value for different rounds
+
+    # wiring diagram:
+    # SWAP: LHS[i] = RHS[i-1], ie LE_out32 = RE_inp32
+    # DROP: F(RHS[i-1])
+    # XLOP:
+
+    f_output = functionF(RE_inp32, key48)
+    x_output = XORbits(f_output, LE_inp32)
+
+    LE_out32 = RE_inp32 # = RE_inp32
+    RE_out32 = x_output # XOR(LHS)
+    
+    return LE_out32, RE_out32
+
+
+
+
+    
