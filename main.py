@@ -465,7 +465,7 @@ print(len(keylist[0]))
 
 # getting into the sad waters bracing for the <FileNotFoundError>
 # CIPHER
-print("Section 3: Cipher//LOCK IT UP")
+print("Section 3: Cipher")
 
 def des_round(LE_inp32, RE_inp32, key48):
     # LEinp and REinp are the outputs of the previous round
@@ -477,6 +477,7 @@ def des_round(LE_inp32, RE_inp32, key48):
     # DROP: F(RHS[i-1])
     # XLOP:
 
+
     f_output = functionF(RE_inp32, key48)
     x_output = XORbits(f_output, LE_inp32)
 
@@ -486,6 +487,101 @@ def des_round(LE_inp32, RE_inp32, key48):
     return LE_out32, RE_out32
 
 
+def des_enc(inputblock, num_rounds, inputkey64):
+    # This is the function that accepts one bloc of plaintext
+    # and applies all rounds of the DES cipher and returns the
+    # cipher text block. 
+    # Inputs:
+    # inputblock: byte sequence representing input block
+    # num_rounds: integer representing number of rounds in the feistel 
+    # key: byte sequence (8 bytes)
+    # Output:
+    # cipherblock: byte sequence    
+
+
+    cipherblock = b''
+    
+    #inputblock is 8bits
+
+    # convert bytes to bits (see above)
+
+    # perform initial permutation 
+    Permutation(inputblock, BookInitPermOrder)
+
+    # then split into LHS, RHS
+
+    # num_rounds is 16 (DES is always 16)
+
+    # do all rounds
+
+    # do inverse initial perm
+    Permutation(inputblock, BookInvInitPermOrder)
+
+
+
+    return cipherblock
 
 
     
+def des_enc_test(input_fname, inputkey64, num_rounds=16, output_fname='output.txt'):
+    
+    # inputkey64: byte sequence (8 bytes)
+    # numrounds: asked since your feistel already has it but we always use 16 for DES
+    
+    # First read the contents of the input file as a byte sequence
+    finp = open(input_fname, 'rb')
+    inpbyteseq = finp.read()
+    finp.close()
+    
+    # Then break the inpbyteseq into blocks of 8 bytes long and 
+    # put them in a list
+    # Pad the last element with spaces b'\x20' until it is 8 bytes long
+    # blocklist = [list of 8 byte long blocks]
+    
+    blocksize = 8
+
+
+    blocklist = [inpbyteseq[i: i + blocksize] for i in range(0, len(inpbyteseq), blocksize)]
+
+    print(blocklist)
+
+    # Pad the last element with spaces b'\x20' until it is 8 bytes long
+    #print(len(blocklist[-1]))
+    if len(blocklist[-1])%8 > 0:
+      blocklist[-1] = blocklist[-1] + b'\x20'*(8 - len(blocklist[-1])%8)
+    #print(len(blocklist[-1]))
+
+
+    # Loop over al blocks and use the dec_enc to generate the cipher block
+    # append all cipherblocks together to form the outut byte sequence
+    # cipherbyteseq = b''.join([list of cipher blocks])
+    
+    cipherbyteseq = b''
+
+    # write the cipherbyteseq to output file
+    fout = open(output_fname, 'wb')
+    fout.write(cipherbyteseq)
+    fout.close()
+    
+
+
+
+
+### test section
+def testfunction():
+  print("ENCODING NOW")
+  #feistel_enc_test('input.txt', 12, 16, 'output.txt')
+  
+  inputkey64 = '1110101001010110010101010101010110110101001100100101010111111100'
+  
+  print(len(inputkey64))
+
+  des_enc_test("default.txt", inputkey64, 16, "output.txt")
+
+
+  print("ATTEMPTING TO DECODE")
+  #feistel_dec_test('output.txt', 12, 16, 'finaloutput.txt')
+
+
+if __name__ == "__main__":
+    testfunction()
