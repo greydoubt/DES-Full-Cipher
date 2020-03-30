@@ -224,6 +224,8 @@ print(test_middleperm)
 
 # prior to going into sbox, slice it up:
 
+
+# this is in F Function as well:
 boxstr = expanded
 eightboxes = list(map(''.join, zip(*[iter(boxstr)]*6)))
 print(eightboxes)
@@ -323,9 +325,9 @@ DECtoBIN2 = {0: '00',
             3: '11'}            
 
 
-print(eightboxes[7])
-print(eightboxes[7][0]+eightboxes[7][-1])
-print(eightboxes[7][1:5])
+print(eightboxes[3])
+print(eightboxes[3][0]+eightboxes[3][-1])
+print(eightboxes[3][1:5])
 
 # this will be called in a for loop from 0-7
 def sbox_lookup(input6bitstr, sboxindex):
@@ -357,3 +359,53 @@ print(sbox_lookup('011011', 4))
 
 #to go from value to key:
 #print(list(DECtoBIN4.keys())[list(DECtoBIN4.values()).index('1100')])
+
+print("PART FOUR")
+# F: the Round Function:
+
+def functionF(bitstr32, keybitstr48):
+    # basically:
+    # expand > XOR > box > install NSA backdoor > permute
+    expanded = Expansion(bitstr32, E_TABLE)
+    xored = XORbits(expanded, keybitstr48)
+
+
+    eightboxes = list(map(''.join, zip(*[iter(xored)]*6)))
+
+    #print(expanded)
+    #print(xored)
+
+    sboxresults = []
+
+    for i in range(len(eightboxes)):
+      #print(str(i) + ' ' + eightboxes[i])
+      sboxresults.append(sbox_lookup(eightboxes[i], i))
+
+    middleperm = Permutation(''.join(sboxresults), MiddlePermOrder)
+
+    # return the result
+    outbitstr32 = middleperm
+    return outbitstr32
+
+
+print("Does not have active keys:")
+print(functionF(RHS, '000100101010101010010100010101010010101001010010'))
+
+
+print("Section 2: GENERATE KEYS")
+
+dummykey='000100101010101010010100010101010010101001010010'
+
+print(len(dummykey))
+
+ROTATIONS = [1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1]
+
+
+def des_keygen(C_inp, D_inp, roundindex):
+    # Implement Figure 6
+    
+    key48 = ''
+    C_out = ''
+    D_out = ''
+
+    return key48, C_out, D_out
