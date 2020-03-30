@@ -436,11 +436,11 @@ def des_keygen(C_inp, D_inp, roundindex):
     # left shift: ROTATIONS[roundindex]
     i = 0
     while i < ROTATIONS[roundindex]:
-      print("bake me a potato, it's time to rotate-o!")
-      C_inp.append(C_inp[0])
-      D_inp.append(D_inp[0])
-      del C_inp[0]
-      del D_inp[0]
+      #print("bake me a potato, it's time to rotate-o!")
+      C_inp += C_inp[0]
+      D_inp += D_inp[0]
+      C_inp = C_inp[1:]
+      D_inp = D_inp[1:]
       i += 1
 
     # PC2 to key
@@ -454,9 +454,17 @@ def des_keygen(C_inp, D_inp, roundindex):
     return key48, C_out, D_out
 
 i = 0
+keylist = []
 while i < 16:
-  print("Key: " + str(i))
+  print("Key: " + str(i) + ' ', end='')
+  keytemp, LHSKeyOrig, RHSKeyOrig = des_keygen(LHSKeyOrig, RHSKeyOrig, i)
+  keylist.append(keytemp)
+
   i += 1
 
+print('\n')
+print(keylist)
+
+#print(des_keygen(LHSKeyOrig, RHSKeyOrig, 0))
 
 # done for the day, test keygen and try cipher
