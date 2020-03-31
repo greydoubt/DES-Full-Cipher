@@ -153,13 +153,13 @@ def Permutation(bitstr, permorderlist):
 test_inputstr = '0123456789ABCDEF'
 test_inputbytes = bytes(test_inputstr, 'utf-8')
 test_inputbitstr = byteseq2binstr(inputbytes)
-print('inputbitstr: ', test_inputbitstr)
+#print('inputbitstr: ', test_inputbitstr)
 
 # INITIAL PERMUTATION: 
 test_init = Permutation(test_inputbitstr, BookInitPermOrder)
 # INVERT (SHOULD BE THE SAME AS INITIAL BIT STRING)
 test_inverse = Permutation(test_init, BookInvInitPermOrder)
-print(test_inputbitstr == test_inverse)
+#print(test_inputbitstr == test_inverse)
 
 print("PART THREE:")
 
@@ -170,7 +170,7 @@ def split(somestring):
 	return somestring[:int(len(somestring)/2)],somestring[int(len(somestring)/2):]
 
 LHS, RHS = split(somestring)
-print (LHS, RHS)
+#print (LHS, RHS)
 
 
 # EXPANSION FUNCTION:
@@ -182,9 +182,9 @@ def Expansion(inputbitstr32, e_table):
     # to be more exact, it will be as long as the e_table (which is 48 bits for DES)
  
 
-    print("calling expansion on: ")
-    print(len(inputbitstr32))
-    print(type(inputbitstr32))
+    #print("calling expansion on: ")
+    #print(len(inputbitstr32))
+    #print(type(inputbitstr32))
     # create output empty string
     outputbitstr48 = ''
 
@@ -360,7 +360,7 @@ print(SBOX[4][1][13])
 
 #print(eightboxes[7][])
 
-print(sbox_lookup('011011', 4))
+#print(sbox_lookup('011011', 4))
 
 #to go from value to key:
 #print(list(DECtoBIN4.keys())[list(DECtoBIN4.values()).index('1100')])
@@ -372,9 +372,9 @@ def functionF(bitstr32, keybitstr48):
     # basically:
     # expand > XOR > box > install NSA backdoor > permute
 
-    print("calling (pre) expansion on: ")
-    print(len(bitstr32))
-    print(type(bitstr32))
+    #print("calling (pre) expansion on: ")
+    ##print(len(bitstr32))
+    #print(type(bitstr32))
     expanded = Expansion(bitstr32, E_TABLE)
     xored = XORbits(expanded, keybitstr48)
 
@@ -397,16 +397,16 @@ def functionF(bitstr32, keybitstr48):
     return outbitstr32
 
 
-print("Does not have active keys:")
-print(functionF(RHS, '000100101010101010010100010101010010101001010010'))
+#print("Does not have active keys:")
+#print(functionF(RHS, '000100101010101010010100010101010010101001010010'))
 
 
-print("Section 2: GENERATE KEYS")
+#print("Section 2: GENERATE KEYS")
 
-dummykey='000100101010101010010100010101010010101001010010'
+#dummykey='000100101010101010010100010101010010101001010010'
 
-dummykey64='1000100101010101011110010100010101010010101001010010101000000101'
-print(len(dummykey64))
+#dummykey64='1000100101010101011110010100010101010010101001010010101000000101'
+#print(len(dummykey64))
 
 ROTATIONS = [1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1]
 
@@ -424,14 +424,14 @@ PC2=[14,17,11,24,1,5,3,28,15,6,21,10,23,19,12,4,26,8,16,7,27,20,13,2,41,52,31,37
 
 
 # these go into the dec/enc functions before keys are made
-dummykeyPC1 = Permutation(dummykey64, PC1)
-LHSKeyOrig, RHSKeyOrig = split(dummykeyPC1)
+#dummykeyPC1 = Permutation(dummykey64, PC1)
+#LHSKeyOrig, RHSKeyOrig = split(dummykeyPC1)
 
 
-print(dummykeyPC1)
-print(dummykey64)
-print(LHSKeyOrig)
-print(RHSKeyOrig)
+#print(dummykeyPC1)
+#print(dummykey64)
+#print(LHSKeyOrig)
+#print(RHSKeyOrig)
 
 
 # prototype function:
@@ -441,10 +441,11 @@ print(RHSKeyOrig)
 def des_keygen(C_inp, D_inp, roundindex):
     # Implement Figure 6
 
+    print("making key #" + str(roundindex))
     # left shift: ROTATIONS[roundindex]
     i = 0
     while i < ROTATIONS[roundindex]:
-      #print("bake me a potato, it's time to rotate-o!")
+      print("rotating: " + str(ROTATIONS[roundindex]))
       C_inp += C_inp[0]
       D_inp += D_inp[0]
       C_inp = C_inp[1:]
@@ -460,7 +461,7 @@ def des_keygen(C_inp, D_inp, roundindex):
     D_out = D_inp
 
     return key48, C_out, D_out
-
+'''
 i = 0
 keylist = []
 while i < 16:
@@ -468,11 +469,11 @@ while i < 16:
   keytemp, LHSKeyOrig, RHSKeyOrig = des_keygen(LHSKeyOrig, RHSKeyOrig, i)
   keylist.append(keytemp)
   i += 1
-# post condition: list of 16 48bit keys
+# post condition: list of 16 48bit keys'''
 
 
-print('\n')
-print(len(keylist[0]))
+#print('\n')
+#print(len(keylist[0]))
 
 #print(des_keygen(LHSKeyOrig, RHSKeyOrig, 0))
 
@@ -494,22 +495,26 @@ def des_round(LE_inp32, RE_inp32, key48):
 
 
 
-    print("des round called 1")
-    print(len(LE_inp32))
-    print(len(RE_inp32))
-    print(len(key48))
+    print("des round called")
+    print(LE_inp32)
+    print(RE_inp32)
+    print(key48)
 
     f_output = functionF(RE_inp32, key48)
     x_output = XORbits(f_output, LE_inp32)
 
     LE_out32 = RE_inp32 # = RE_inp32
     RE_out32 = x_output # XOR(LHS)
-    
 
-    print(type(f_output))
-    print(type(x_output))
-    print(type(LE_out32))
-    print(type(RE_out32))    
+    print(f_output)
+    print(x_output)
+    print(LE_out32)
+    print(RE_out32)
+
+    #print(type(f_output))
+    #print(type(x_output))
+    #print(type(LE_out32))
+    #print(type(RE_out32))    
 
 
     return LE_out32, RE_out32
@@ -527,30 +532,32 @@ def des_enc(inputblock, num_rounds, inputkey64):
     # cipherblock: byte sequence    
 
 
-    cipherblock = b''
+    #cipherblock = b''
 
 
     # generate keylist using 64bit input key
     print("turning 64b key into 56")
     key64to56 = Permutation(inputkey64, PC1)
     print("Splitting 56b key")
-    C_Orig, C_Orig = split(key64to56)
+    C_Orig, D_Orig = split(key64to56)
 
     keylist = []
 
     roundindex = 0
     while roundindex < num_rounds:
-      print(roundindex)
+      print("Round: " + str(roundindex))
 
       # using key48, C_out, D_out = des_keygen(C_inp, D_inp, roundindex):
-      temp_key48, C_Orig, C_Orig = des_keygen(C_Orig, C_Orig, roundindex)
+      temp_key48, C_Orig, D_Orig = des_keygen(C_Orig, D_Orig, roundindex)
 
       keylist.append(temp_key48)
-      
+      # to put in front: insert(0, temp_key48)
       roundindex += 1
+      print("numkeys = " + str(roundindex))
 
-
+    print("enc keylist: ")
     print(keylist)
+    #print(keylist)
     
     #inputblock is 8bits
 
@@ -568,12 +575,14 @@ def des_enc(inputblock, num_rounds, inputkey64):
 
     #LE_inp[0], RE_inp[0] = split(initpermstr)
     blocksize = len(inputblock)
-    print("blocksize = " + str(blocksize))
+    #print("blocksize = " + str(blocksize))
 
     #print(type(inputblock))
 
-    LE_inp[0] = inputblock[:int(blocksize/2)]
-    RE_inp[0] = inputblock[int(blocksize/2):int(blocksize)]
+    #LE_inp[0] = inputblock[:int(blocksize/2)]
+    #RE_inp[0] = inputblock[int(blocksize/2):int(blocksize)]
+
+    LE_inp[0], RE_inp[0] = split(inputblock)
 
 
 
@@ -601,6 +610,8 @@ def des_enc(inputblock, num_rounds, inputkey64):
       #LHS[round], RHS[round] 
       #templeft, tempright 
       LE_inp[round], RE_inp[round] = des_round(LE_inp[round-1], RE_inp[round-1], keylist[round-1])
+      print("LHS: " + LE_inp[round])
+      print("RHS: " + RE_inp[round])
       
     pre_cipherblock = RE_inp[num_rounds] + LE_inp[num_rounds]
 
@@ -608,6 +619,7 @@ def des_enc(inputblock, num_rounds, inputkey64):
     post_cipherblock = Permutation(pre_cipherblock, BookInvInitPermOrder)
 
     cipherblock = post_cipherblock
+    print(type(cipherblock))
 
     return cipherblock
 
@@ -644,7 +656,8 @@ def des_enc_test(input_fname, inputkey64, num_rounds=16, output_fname='output.tx
     encodedlist = []
 
     for inputblock in blocklist:
-      encodedlist.append(des_enc(byteseq2binstr(inputblock), num_rounds, inputkey64))
+      result = des_enc(byteseq2binstr(inputblock), num_rounds, inputkey64)
+      encodedlist.append(binstr2byteseq(result))
 
     #des_enc(byteseq2binstr(blocklist[0]), num_rounds, inputkey64)
 
@@ -652,17 +665,191 @@ def des_enc_test(input_fname, inputkey64, num_rounds=16, output_fname='output.tx
     # append all cipherblocks together to form the outut byte sequence
     # cipherbyteseq = b''.join([list of cipher blocks])
     
-    binstr = ''.join(encodedlist)
+    #binstr = ''.join(encodedlist)
+    cipherbyteseq = b''.join(encodedlist)
+    #byteseq2binstr
+    print("encoded: " + str(cipherbyteseq))
+    print("encoded: " + str(byteseq2binstr(cipherbyteseq)))
+    print("encoded: " + str(binstr2byteseq(byteseq2binstr(cipherbyteseq))))
 
-
-    cipherbyteseq = binstr2byteseq(binstr)
+    #cipherbyteseq = binstr2byteseq(binstr)
 
     # write the cipherbyteseq to output file
     fout = open(output_fname, 'wb')
     fout.write(cipherbyteseq)
     fout.close()
     
+### DECIPHER
 
+def des_dec(inputblock, num_rounds, inputkey64):
+    # This is the function that accepts one bloc of ciphertext
+    # and applies all rounds of the DES cipher and returns the
+    # plaintext text block. 
+    # Inputs:
+    # inputblock: byte sequence representing ciphertext block
+    # num_rounds: integer representing number of rounds in the feistel 
+    # key: byte sequence (8 bytes)
+    # Output:
+    # plainblock: byte sequence    
+    
+    # try:
+    # do the same as enc, but use the keys in reverse order
+
+
+    plainblock = ''
+
+    # generate keylist using 64bit input key
+    print("turning 64b key into 56")
+    key64to56 = Permutation(inputkey64, PC1)
+    print("Splitting 56b key")
+    C_Orig, D_Orig = split(key64to56)
+
+    keylist = []
+
+    #roundindex = 0
+    for roundindex in range(0,num_rounds):
+      print("Round: " + str(roundindex))
+
+      # using key48, C_out, D_out = des_keygen(C_inp, D_inp, roundindex):
+      temp_key48, C_Orig, D_Orig = des_keygen(C_Orig, D_Orig, roundindex)
+
+      keylist.append(temp_key48)
+      # to put in front: insert(0, temp_key48)
+      #roundindex += 1
+      print("numkeys = " + str(roundindex))
+      
+    print("dec keylist: ")
+    print(keylist)
+
+
+    #print(keylist)
+    
+    #inputblock is 8bits
+
+    # convert bytes to bits- done outside  (see above)
+
+    # perform initial permutation 
+    print("initial perm:")
+    initpermstr = Permutation(inputblock, BookInitPermOrder)
+
+    # then split into LHS, RHS
+    #LHS, RHS = split(initpermstr)
+
+    LE_inp = [""] * (num_rounds+1)
+    RE_inp = [""] * (num_rounds+1)
+
+    #LE_inp[0], RE_inp[0] = split(initpermstr)
+    blocksize = len(inputblock)
+    #print("blocksize = " + str(blocksize))
+
+    #print(type(inputblock))
+
+    LE_inp[0] = inputblock[:int(blocksize/2)]
+    RE_inp[0] = inputblock[int(blocksize/2):int(blocksize)]
+
+
+
+    '''print("split string lengths:")
+    print(len(LHS))
+    print(len(RHS))
+    print(len(keylist[0]))
+    print(len(keylist))
+
+    print(type(LHS[0]))
+    print(type(RHS[0]))'''
+
+    # num_rounds is 16 (DES is always 16)
+
+    #t1, t2 = des_round(LE_inp[0], RE_inp[0], #keylist[0])
+    #print(type(t1))
+
+    # do all rounds:
+    #i = 0
+    for round in range(1, num_rounds+1):
+      print("Round: " + str(round))
+      #i += 1
+
+      #return LE_out32, RE_out32
+      #LHS[round], RHS[round] 
+      #templeft, tempright 
+      LE_inp[round], RE_inp[round] = des_round(LE_inp[round-1], RE_inp[round-1], keylist[num_rounds-round])
+      print("LHS: " + LE_inp[round])
+      print("RHS: " + RE_inp[round])
+      
+    pre_cipherblock = RE_inp[num_rounds] + LE_inp[num_rounds]
+
+    # do inverse initial perm
+    post_cipherblock = Permutation(pre_cipherblock, BookInvInitPermOrder)
+
+    plainblock = binstr2byteseq(post_cipherblock)
+    print(type(plainblock))
+
+    
+    return plainblock
+    
+def des_dec_test(input_fname, inputkey64, num_rounds, output_fname):
+    
+    # inputkey64: byte sequence (8 bytes)
+    # numrounds: asked since your feistel already has it but we always use 16 for DES
+        
+    # First read the contents of the input file as a byte sequence
+    finp = open(input_fname, 'rb')
+    cipherbyteseq = finp.read()
+    finp.close()
+    
+    # do the decryption rounds
+
+    #inpbyteseq = cipherbyteseq
+    blocksize = 8
+
+
+    blocklist = [cipherbyteseq[i: i + blocksize] for i in range(0, len(cipherbyteseq), blocksize)]
+
+    print(blocklist)
+
+    # Pad the last element with spaces b'\x20' until it is 8 bytes long
+    #print(len(blocklist[-1]))
+    if len(blocklist[-1])%8 > 0:
+      blocklist[-1] = blocklist[-1] + b'\x20'*(8 - len(blocklist[-1])%8)
+    #print(len(blocklist[-1]))
+
+    decodedlist = []
+
+    print("Trying to decode: " + str(cipherbyteseq))
+
+    for inputblock in blocklist:
+      result = des_dec(byteseq2binstr(inputblock), num_rounds, inputkey64)
+      print("result: " + str(result))
+
+      decodedlist.append(result)
+
+    #des_enc(byteseq2binstr(blocklist[0]), num_rounds, inputkey64)
+
+    # Loop over al blocks and use the dec_enc to generate the cipher block
+    # append all cipherblocks together to form the outut byte sequence
+    # cipherbyteseq = b''.join([list of cipher blocks])
+    
+    plainbyteseq = b''.join(decodedlist)
+
+    print("decoded: " + str(plainbyteseq))
+    print("decoded: " + str(byteseq2binstr(plainbyteseq)))
+
+    #cipherbyteseq = byteseq2binstr(plainbyteseq)
+
+    #plainbyteseq = binstr2byteseq(binstr)
+    #plainbyteseq = binstr2byteseq(binstr)
+
+    #print(plainbyteseq)
+
+    # write the plainbyteseq to output file
+    fout = open(output_fname, 'wb')
+    fout.write(plainbyteseq)
+    fout.close()
+    
+
+
+
+### END OF DECIPHER
 
 
 
@@ -671,7 +858,7 @@ def testfunction():
   print("ENCODING NOW")
   #feistel_enc_test('input.txt', 12, 16, 'output.txt')
   
-  inputkey64 = '1110101001010110010101010101010110110101001100100101010111111100'
+  inputkey64 = '1111111111111111111111111111111111111111111111111111111111111000'
   
   print(len(inputkey64))
 
@@ -680,6 +867,15 @@ def testfunction():
 
   print("ATTEMPTING TO DECODE")
   #feistel_dec_test('output.txt', 12, 16, 'finaloutput.txt')
+  #des_dec_test(input_fname, inputkey64, num_rounds, output_fname):
+  des_dec_test("output.txt", inputkey64, 16, "output2.txt")
+
+
+  #print("bytes to bin and back")
+  #print(byteseq2binstr(binstr2byteseq('1110001110010010')))
+  #binstr2byteseq('1111')
+
+
 
 
 if __name__ == "__main__":
