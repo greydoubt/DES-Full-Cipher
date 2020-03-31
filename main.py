@@ -146,6 +146,9 @@ def Permutation(bitstr, permorderlist):
     
     for i in permorderlist:
       permedbitstr += bitstr[i-1]
+    #inputbitslistperm = []
+    #inputbitslistperm = [bitstr[b-1] for b in permorderlist]
+    #inputbitstrperm = ''.join(inputbitslistperm)  
 
     return permedbitstr
 
@@ -342,8 +345,8 @@ def sbox_lookup(input6bitstr, sboxindex):
     rowbin = input6bitstr[0]+input6bitstr[-1] # this is 00 through 11; get first/last chars
     colbin = input6bitstr[1:5] # get middle 4 chars
     
-    
-    row = list(DECtoBIN4.keys())[list(DECtoBIN2.values()).index(rowbin)]
+    # this had bin4 not bin2
+    row = list(DECtoBIN2.keys())[list(DECtoBIN2.values()).index(rowbin)]
 
     col = list(DECtoBIN4.keys())[list(DECtoBIN4.values()).index(colbin)]
 
@@ -353,7 +356,7 @@ def sbox_lookup(input6bitstr, sboxindex):
     return DECtoBIN4.get(sbox_value)
 
 # test case: 011011 for S5 will be [2,14] = 9
-print(SBOX[4][1][13])
+#print(SBOX[4][1][13])
 
 # to go from key to value:
 #print(DECtoBIN4.get(1))
@@ -389,6 +392,10 @@ def functionF(bitstr32, keybitstr48):
     for i in range(len(eightboxes)):
       #print(str(i) + ' ' + eightboxes[i])
       sboxresults.append(sbox_lookup(eightboxes[i], i))
+
+
+    print("sbox results: ")
+    print(sboxresults)
 
     middleperm = Permutation(''.join(sboxresults), MiddlePermOrder)
 
@@ -496,9 +503,9 @@ def des_round(LE_inp32, RE_inp32, key48):
 
 
     print("des round called")
-    print(LE_inp32)
-    print(RE_inp32)
-    print(key48)
+    #print(LE_inp32)
+    #print(RE_inp32)
+    #print(key48)
 
     f_output = functionF(RE_inp32, key48)
     x_output = XORbits(f_output, LE_inp32)
@@ -506,10 +513,10 @@ def des_round(LE_inp32, RE_inp32, key48):
     LE_out32 = RE_inp32 # = RE_inp32
     RE_out32 = x_output # XOR(LHS)
 
-    print(f_output)
-    print(x_output)
-    print(LE_out32)
-    print(RE_out32)
+    #print(f_output)
+    #print(x_output)
+    #print(LE_out32)
+    #print(RE_out32)
 
     #print(type(f_output))
     #print(type(x_output))
@@ -536,8 +543,13 @@ def des_enc(inputblock, num_rounds, inputkey64):
 
 
     # generate keylist using 64bit input key
-    print("turning 64b key into 56")
+    print("turning 64b key into 56:")
+    print(inputkey64)
+    
+
     key64to56 = Permutation(inputkey64, PC1)
+    print(key64to56)
+    
     print("Splitting 56b key")
     C_Orig, D_Orig = split(key64to56)
 
@@ -564,7 +576,7 @@ def des_enc(inputblock, num_rounds, inputkey64):
     # convert bytes to bits- done outside  (see above)
 
     # perform initial permutation 
-    print("initial perm:")
+    print("initial perm: " +str(inputblock))
     initpermstr = Permutation(inputblock, BookInitPermOrder)
 
     # then split into LHS, RHS
@@ -582,7 +594,7 @@ def des_enc(inputblock, num_rounds, inputkey64):
     #LE_inp[0] = inputblock[:int(blocksize/2)]
     #RE_inp[0] = inputblock[int(blocksize/2):int(blocksize)]
 
-    LE_inp[0], RE_inp[0] = split(inputblock)
+    LE_inp[0], RE_inp[0] = split(initpermstr)
 
 
 
@@ -613,7 +625,9 @@ def des_enc(inputblock, num_rounds, inputkey64):
       print("LHS: " + LE_inp[round])
       print("RHS: " + RE_inp[round])
       
+      #changed order:
     pre_cipherblock = RE_inp[num_rounds] + LE_inp[num_rounds]
+    print(len(pre_cipherblock))
 
     # do inverse initial perm
     post_cipherblock = Permutation(pre_cipherblock, BookInvInitPermOrder)
@@ -744,8 +758,8 @@ def des_dec(inputblock, num_rounds, inputkey64):
 
     #print(type(inputblock))
 
-    LE_inp[0] = inputblock[:int(blocksize/2)]
-    RE_inp[0] = inputblock[int(blocksize/2):int(blocksize)]
+    LE_inp[0] = initpermstr[:int(blocksize/2)]
+    RE_inp[0] = initpermstr[int(blocksize/2):int(blocksize)]
 
 
 
@@ -855,20 +869,21 @@ def des_dec_test(input_fname, inputkey64, num_rounds, output_fname):
 
 ### test section
 def testfunction():
-  print("ENCODING NOW")
+  print("\n\nENCODING NOW")
   #feistel_enc_test('input.txt', 12, 16, 'output.txt')
   
+  rounds = 1
   inputkey64 = '1111111111111111111111111111111111111111111111111111111111111000'
   
   print(len(inputkey64))
 
-  des_enc_test("default.txt", inputkey64, 16, "output.txt")
+  des_enc_test("default.txt", inputkey64, rounds, "output.txt")
 
 
-  print("ATTEMPTING TO DECODE")
+  print("\n\nATTEMPTING TO DECODE")
   #feistel_dec_test('output.txt', 12, 16, 'finaloutput.txt')
   #des_dec_test(input_fname, inputkey64, num_rounds, output_fname):
-  des_dec_test("output.txt", inputkey64, 16, "output2.txt")
+  des_dec_test("output.txt", inputkey64, rounds, "output2.txt")
 
 
   #print("bytes to bin and back")
