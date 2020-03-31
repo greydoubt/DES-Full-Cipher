@@ -843,7 +843,7 @@ def des_dec_test(input_fname, inputkey64, num_rounds, output_fname):
     # append all cipherblocks together to form the outut byte sequence
     # cipherbyteseq = b''.join([list of cipher blocks])
     
-    plainbyteseq = b''.join(decodedlist)
+    plainbyteseq = b''.join(decodedlist).strip()
 
     print("decoded: " + str(plainbyteseq))
     print("decoded: " + str(byteseq2binstr(plainbyteseq)))
@@ -872,7 +872,7 @@ def testfunction():
   print("\n\nENCODING NOW")
   #feistel_enc_test('input.txt', 12, 16, 'output.txt')
   
-  rounds = 1
+  rounds = 16
   inputkey64 = '1111111111111111111111111111111111111111111111111111111111111000'
   
   print(len(inputkey64))
