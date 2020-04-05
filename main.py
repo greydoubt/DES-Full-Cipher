@@ -13,12 +13,15 @@ def byteseq2binstr(byteseq):
     return allbitsstr
 
 def binstr2byteseq(binstr):
-    v = int(binstr, 2)
+    return int(binstr, 2).to_bytes((len(binstr) + 7) // 8, 'big')
+    #return b''.join([chr(int(x, 2)) for x in binstr])
+    #return chr(int(binstr, 2))
+    '''v = int(binstr, 2)
     b = bytearray()
     while v:
         b.append(v & 0xff)
         v >>= 8
-    return bytes(b[::-1])
+    return bytes(b[::-1])'''
 
 def split(somestring):
     return somestring[:int(len(somestring)/2)], somestring[int(len(somestring)/2):]
@@ -330,7 +333,7 @@ def des_enc(inputblock, num_rounds, inputkey64):
     LE_inp = [""] * (num_rounds+1)
     RE_inp = [""] * (num_rounds+1)
 
-    blocksize = len(inputblock)
+    #blocksize = len(inputblock)
 
 
     LE_inp[0], RE_inp[0] = split(initpermstr)
@@ -360,6 +363,20 @@ def des_enc_test(input_fname, inputkey64, num_rounds=16, output_fname='output.tx
     
     blocksize = 8
 
+    print(inpbyteseq)
+
+
+    # IN CASE THE QUOTATION MARKS BREAK
+    #inpbyteseq = inpbyteseq.replace(b"""'""", b'')
+    #inpbyteseq = inpbyteseq.replace(b'''"''', b'')
+    # .count('a') to count, if it is odd/unbalanced, add to the end, then delete on decipher?
+    
+    print('\n')
+    print(inpbyteseq)
+    #inpbyteseq.replace("'",'\'')
+
+    inputkey64 = byteseq2binstr(inputkey64)
+
     blocklist = [inpbyteseq[i: i + blocksize] for i in range(0, len(inpbyteseq), blocksize)]
 
 
@@ -370,6 +387,9 @@ def des_enc_test(input_fname, inputkey64, num_rounds=16, output_fname='output.tx
     encodedlist = []
 
     for inputblock in blocklist:
+      #print("Encoding: " + str(inputblock))
+      
+      
       result = des_enc(byteseq2binstr(inputblock), num_rounds, inputkey64)
       encodedlist.append(binstr2byteseq(result))
 
@@ -434,9 +454,9 @@ def des_dec(inputblock, num_rounds, inputkey64):
     pre_cipherblock = RE_inp[num_rounds] + LE_inp[num_rounds]
 
     # do inverse initial perm
-    post_cipherblock = Permutation(pre_cipherblock, BookInvInitPermOrder)
+    plainblock = Permutation(pre_cipherblock, BookInvInitPermOrder)
 
-    plainblock = binstr2byteseq(post_cipherblock)
+    #plainblock = binstr2byteseq(post_cipherblock)
 
     return plainblock
     
@@ -446,10 +466,14 @@ def des_dec_test(input_fname, inputkey64, num_rounds, output_fname):
     # numrounds: asked since your feistel already has it but we always use 16 for DES
         
     # First read the contents of the input file as a byte sequence
+
+    
     finp = open(input_fname, 'rb')
     cipherbyteseq = finp.read()
     finp.close()
     
+    inputkey64 = byteseq2binstr(inputkey64)
+
     blocksize = 8
 
     blocklist = [cipherbyteseq[i: i + blocksize] for i in range(0, len(cipherbyteseq), blocksize)]
@@ -463,10 +487,12 @@ def des_dec_test(input_fname, inputkey64, num_rounds, output_fname):
     decodedlist = []
 
     for inputblock in blocklist:
+      #print("Decoding: " + str(inputblock))
       result = des_dec(byteseq2binstr(inputblock), num_rounds, inputkey64)
+      #print("Decoding: " + str(binstr2byteseq(result)))
       #print("result: " + str(result))
-
-      decodedlist.append(result)
+      decodedlist.append(binstr2byteseq(result))
+      #decodedlist.append(binstr2byteseq(result))
 
     #print('done')
     plainbyteseq = b''.join(decodedlist).strip()
@@ -484,13 +510,15 @@ def des_dec_test(input_fname, inputkey64, num_rounds, output_fname):
 
 ### test section
 def testfunction():
-  #print("\n\nENCODING NOW")
+  
 
-  rounds = 16#
-  inputkey64 = '1111111111111011111111111111111111111101111111111111111111111000'
+  rounds = 16
+  #inputkey64 = '1111111111111011111111111111111111111101111111111111111111111000'
+
+  inputkey64 = b'1G3456ac' # this is 64 bit (8 bytes)
   
   #print(len(inputkey64))
-
+  #print("\n\nENCODING NOW")
   des_enc_test("default.txt", inputkey64, rounds, "output.txt")
 
 
